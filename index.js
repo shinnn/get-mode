@@ -8,7 +8,6 @@ var inspect = require('util').inspect;
 
 var fs = require('fs');
 var isPlainObj = require('is-plain-obj');
-var PinkiePromise = require('pinkie-promise');
 
 var lstat = fs.lstat;
 var stat = fs.stat;
@@ -22,7 +21,7 @@ var unsupportedOptions = [
 ];
 
 module.exports = function getMode(path, option) {
-  return new PinkiePromise(function(resolve, reject) {
+  return new Promise(function(resolve, reject) {
     if (typeof path !== 'string') {
       throw new TypeError(PATH_ERROR + ', but got a non-string value ' + inspect(path) + '.');
     }

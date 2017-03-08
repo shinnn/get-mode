@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/shinnn/get-mode.svg?branch=master)](https://travis-ci.org/shinnn/get-mode)
 [![Coverage Status](https://img.shields.io/coveralls/shinnn/get-mode.svg)](https://coveralls.io/github/shinnn/get-mode?branch=master)
 
-A [Node](https://nodejs.org/) module to get a file mode
+A [Node.js](https://nodejs.org/) module to get a file mode
 
 ```javascript
 const getMode = require('get-mode');
