@@ -61,7 +61,7 @@ test('invalidate non-string path', t => {
     t.equal(name, 'TypeError');
     t.equal(
       message,
-      'Expected a file or directory path to get its mode, but got a non-string value [ 0 ].'
+      'Expected a file or directory path to get its mode, but got a non-string value [ 0 ] (array).'
     );
   });
 });

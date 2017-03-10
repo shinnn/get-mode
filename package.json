@@ -5,7 +5,7 @@
   "repository": "shinnn/get-mode",
   "author": "Shinnosuke Watanabe (https://github.com/shinnn)",
   "scripts": {
-    "pretest": "eslint --fix --format=codeframe --config=@shinnn/node-legacy index.js && eslint --fix --format=codeframe --config=@shinnn/node test.js",
+    "pretest": "eslint --fix --format=codeframe index.js test.js",
     "test": "tap --coverage --jobs-auto test.js"
   },
   "license": "MIT",
@@ -25,13 +25,16 @@
     "asynchronous"
   ],
   "dependencies": {
+    "inspect-with-kind": "^1.0.0",
     "is-plain-obj": "^1.1.0"
   },
   "devDependencies": {
     "@shinnn/eslint-config-node": "^3.0.0",
-    "@shinnn/eslint-config-node-legacy": "^3.0.0",
     "eslint": "^3.17.1",
     "run-parallel": "^1.1.6",
     "tap": "^10.3.0"
+  },
+  "eslintConfig": {
+    "extends": "@shinnn/node"
   }
 }
