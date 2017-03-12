@@ -112,7 +112,17 @@ test('no arguments', t => {
     t.equal(name, 'TypeError');
     t.equal(
       message,
-      'Expected a file or directory path to get its mode, but got a non-string value undefined.'
+      'Expected 1 or 2 arguments (path: String[, option: Object]), but got no arguments.'
+    );
+  });
+});
+
+test('toomany arguments', t => {
+  return getMode('a', 'b', 'c').catch(({message, name}) => {
+    t.equal(name, 'TypeError');
+    t.equal(
+      message,
+      'Expected 1 or 2 arguments (path: String[, option: Object]), but got 3 arguments.'
     );
   });
 });
