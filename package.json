@@ -8,7 +8,7 @@
 		"pretest": "eslint --fix --format=codeframe index.js test.js",
 		"test": "tap --coverage --jobs-auto test.js"
 	},
-	"license": "MIT",
+	"license": "ISC",
 	"files": [
 		"index.js"
 	],

@@ -1,7 +1,3 @@
-/*!
- * get-mode | MIT (c) Shinnosuke Watanabe
- * https://github.com/shinnn/get-mode
-*/
 'use strict';
 
 const {lstat, stat} = require('fs');
