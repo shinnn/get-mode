@@ -58,15 +58,23 @@ test('invalidate non-string path', t => getMode([0]).catch(({message, name}) => 
 	t.equal(name, 'TypeError');
 	t.equal(
 		message,
-		'Expected a file or directory path to get its mode, but got a non-string value [ 0 ] (array).'
+		'path must be a string or Buffer'
 	);
 }));
 
-test('invalidate empty path', t => getMode('').catch(({message, name}) => {
+test('invalidate empty string', t => getMode('').catch(({message, name}) => {
 	t.equal(name, 'Error');
 	t.equal(
 		message,
 		'Expected a file or directory path to get its mode, but got \'\' (empty string).'
+	);
+}));
+
+test('invalidate empty Buffer', t => getMode(Buffer.alloc(0)).catch(({message, name}) => {
+	t.equal(name, 'Error');
+	t.equal(
+		message,
+		'Expected a file or directory path to get its mode, but got an empty Buffer.'
 	);
 }));
 
@@ -99,7 +107,7 @@ test('no arguments', t => getMode().catch(({message, name}) => {
 	t.equal(name, 'TypeError');
 	t.equal(
 		message,
-		'Expected 1 or 2 arguments (path: String[, option: Object]), but got no arguments.'
+		'Expected 1 or 2 arguments (path: <string|Buffer|URL>[, option: <Object>]), but got no arguments.'
 	);
 }));
 
@@ -107,6 +115,6 @@ test('toomany arguments', t => getMode('a', 'b', 'c').catch(({message, name}) =>
 	t.equal(name, 'TypeError');
 	t.equal(
 		message,
-		'Expected 1 or 2 arguments (path: String[, option: Object]), but got 3 arguments.'
+		'Expected 1 or 2 arguments (path: <string|Buffer|URL>[, option: <Object>]), but got 3 arguments.'
 	);
 }));

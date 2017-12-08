@@ -5,7 +5,7 @@ const {lstat, stat} = require('fs');
 const inspectWithKind = require('inspect-with-kind');
 const isPlainObj = require('is-plain-obj');
 
-const PATH_ERROR = 'Expected a file or directory path to get its mode';
+const EMPTY_PATH_ERROR = 'Expected a file or directory path to get its mode';
 
 const confusingOptionNames = new Set([
 	'followSymlink',
@@ -18,19 +18,19 @@ module.exports = function getMode(...args) {
 		const argLen = args.length;
 
 		if (argLen !== 1 && argLen !== 2) {
-			throw new TypeError(`Expected 1 or 2 arguments (path: String[, option: Object]), but got ${
+			throw new TypeError(`Expected 1 or 2 arguments (path: <string|Buffer|URL>[, option: <Object>]), but got ${
 				argLen === 0 ? 'no' : argLen
 			} arguments.`);
 		}
 
 		const [path, option] = args;
 
-		if (typeof path !== 'string') {
-			throw new TypeError(`${PATH_ERROR}, but got a non-string value ${inspectWithKind(path)}.`);
+		if (path === '') {
+			throw new Error(`${EMPTY_PATH_ERROR}, but got '' (empty string).`);
 		}
 
-		if (path.length === 0) {
-			throw new Error(`${PATH_ERROR}, but got '' (empty string).`);
+		if (Buffer.isBuffer(path) && path.length === 0) {
+			throw new Error(`${EMPTY_PATH_ERROR}, but got an empty Buffer.`);
 		}
 
 		function cb(err, result) {

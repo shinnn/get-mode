@@ -31,7 +31,7 @@ const getMode = require('get-mode');
 
 ### getMode(*path* [, *option*])
 
-*path*: `string` (file, directory or symbolic link path)  
+*path*: `string` `Buffer` `URL` (file, directory or symbolic link path)  
 *option*: `Object`  
 Return: `Promise<Integer>`
 
