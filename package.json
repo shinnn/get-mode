@@ -1,6 +1,6 @@
 {
 	"name": "get-mode",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Get a file mode",
 	"repository": "shinnn/get-mode",
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
@@ -30,7 +30,7 @@
 	},
 	"devDependencies": {
 		"@shinnn/eslint-config-node": "^5.0.0",
-		"eslint": "^4.12.1",
+		"eslint": "^4.13.0",
 		"run-parallel": "^1.1.6",
 		"tap": "^11.0.0"
 	},
