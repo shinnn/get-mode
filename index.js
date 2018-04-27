@@ -13,7 +13,7 @@ const confusingOptionNames = new Set([
 	'resolveSymlinks'
 ]);
 
-module.exports = function getMode(...args) {
+module.exports = async function getMode(...args) {
 	return new Promise((resolve, reject) => {
 		const argLen = args.length;
 

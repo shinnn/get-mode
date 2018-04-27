@@ -54,11 +54,11 @@ test('be rejected on `lstat` failure', t => getMode('not/found').catch(({code, m
 	t.equal(message, 'ENOENT: no such file or directory, lstat \'not/found\'');
 }));
 
-test('invalidate non-string path', t => getMode([0]).catch(({message, name}) => {
-	t.equal(name, 'TypeError');
+test('invalidate non-string path', t => getMode([0]).catch(({code, message}) => {
+	t.equal(code, 'ERR_INVALID_ARG_TYPE');
 	t.equal(
 		message,
-		'path must be a string or Buffer'
+		'The "path" argument must be one of type string, Buffer, or URL. Received type object'
 	);
 }));
 
