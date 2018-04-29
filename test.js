@@ -1,120 +1,132 @@
 'use strict';
 
+const {lstat, stat, symlink, unlink} = require('fs/promises'); // eslint-disable-line node/no-missing-require
+const {join} = require('path');
+
 const getMode = require('.');
-const {lstat, stat, symlink, unlink} = require('fs');
-const runParallel = require('run-parallel');
-const {test} = require('tap');
+const test = require('tape');
 
-function runStatAndLstat(path, cb) {
-	runParallel([
-		done => stat(path, (err, {mode}) => done(err, mode)),
-		done => lstat(path, (err, {mode}) => done(err, mode))
-	], cb);
-}
+test('getMode()', t => {
+	t.plan(3);
 
-test('get a file mode', t => {
-	t.plan(5);
+	(async () => {
+		const tmp = join(__dirname, 'tmp');
 
-	symlink('index.js', 'tmp', symlinkErr => {
-		t.equal(symlinkErr, null);
+		await symlink(__filename, tmp);
+		const [actual, {mode: expected}] = await Promise.all([getMode(tmp), lstat(tmp)]);
 
-		getMode('tmp').then(mode => {
-			runStatAndLstat('tmp', (err, [statMode, lstatMode]) => {
-				t.equal(err, null);
-				t.notEqual(statMode, mode);
-				t.equal(lstatMode, mode);
+		t.equal(
+			actual,
+			expected,
+			'should get a file mode.'
+		);
 
-				unlink('tmp', unlinkErr => t.is(unlinkErr, null));
-			});
-		}, t.error);
-	});
+		return unlink(tmp);
+	})();
+
+	(async () => {
+		const tmp = join(__dirname, '__tmp__');
+
+		await symlink(__filename, tmp);
+		const [actual, {mode: expected}] = await Promise.all([
+			getMode(tmp, {followSymlinks: true}),
+			stat(tmp)
+		]);
+
+		t.equal(
+			actual,
+			expected,
+			'should resolve symlinks when `followSymlinks` option is enabled.'
+		);
+
+		return unlink(tmp);
+	})();
+
+	(async () => {
+		try {
+			await getMode('not/found', {});
+		} catch ({code}) {
+			t.equal(code, 'ENOENT', 'should fail when it cannot get file stats.');
+		}
+	})();
 });
 
-test('`followSymlinks` option', t => {
-	t.plan(5);
+test('Argument validation', async t => {
+	try {
+		await getMode([0]);
+	} catch ({code}) {
+		t.equal(code, 'ERR_INVALID_ARG_TYPE', 'should invalidate non-path first argument.');
+	}
 
-	symlink('index.js', '__tmp__', symlinkErr => {
-		t.equal(symlinkErr, null);
+	try {
+		await getMode('');
+	} catch ({message}) {
+		t.equal(
+			message,
+			'Expected a file or directory path to get its mode, but got \'\' (empty string).',
+			'should invalidate empty string path.'
+		);
+	}
 
-		getMode('__tmp__', {followSymlinks: true}).then(mode => {
-			runStatAndLstat('__tmp__', (err, [statMode, lstatMode]) => {
-				t.equal(err, null);
-				t.equal(statMode, mode);
-				t.notEqual(lstatMode, mode);
+	try {
+		await getMode(Buffer.alloc(0));
+	} catch ({message}) {
+		t.equal(
+			message,
+			'Expected a file or directory path to get its mode, but got an empty Buffer.',
+			'should invalidate empty Buffer path.'
+		);
+	}
 
-				unlink('__tmp__', unlinkErr => t.is(unlinkErr, null));
-			});
-		}, t.error);
-	});
+	try {
+		await getMode(__filename, Buffer.from('a'));
+	} catch ({message}) {
+		t.equal(
+			message,
+			'Expected an object to specify whether `followSymlinks` option is enabled or not, but got <Buffer 61>.',
+			'should invalidate invalidate non-object options.'
+		);
+	}
+
+	try {
+		await getMode(__filename, {followSymlinks: new Uint8Array()});
+	} catch ({message}) {
+		t.equal(
+			message,
+			'Expected `followSymlinks` option to be a Boolean value, but got Uint8Array [  ].',
+			'should invalidate non-boolean `followSymlinks` option.'
+		);
+	}
+
+	try {
+		await getMode(__filename, {followSymlink: -0});
+	} catch ({message}) {
+		t.equal(
+			message,
+			'`followSymlink` option is not supported but a value -0 was provided for it. You mistook `followSymlinks` as it.',
+			'should invalidate unsupported options.'
+		);
+	}
+
+	try {
+		await getMode();
+	} catch ({message}) {
+		t.equal(
+			message,
+			'Expected 1 or 2 arguments (path: <string|Buffer|URL>[, option: <Object>]), but got no arguments.',
+			'should invalidate zero-length arguments.'
+		);
+	}
+
+	try {
+		await getMode('_', {}, '_');
+	} catch ({message}) {
+		t.equal(
+			message,
+			'Expected 1 or 2 arguments (path: <string|Buffer|URL>[, option: <Object>]), but got 3 arguments.',
+			'should invalidate too many arguments.'
+		);
+	}
+
+	t.end();
 });
-
-test('be rejected on `lstat` failure', t => getMode('not/found').catch(({code, message, name}) => {
-	t.equal(name, 'Error');
-	t.equal(code, 'ENOENT');
-	t.equal(message, 'ENOENT: no such file or directory, lstat \'not/found\'');
-}));
-
-test('invalidate non-string path', t => getMode([0]).catch(({code, message}) => {
-	t.equal(code, 'ERR_INVALID_ARG_TYPE');
-	t.equal(
-		message,
-		'The "path" argument must be one of type string, Buffer, or URL. Received type object'
-	);
-}));
-
-test('invalidate empty string', t => getMode('').catch(({message, name}) => {
-	t.equal(name, 'Error');
-	t.equal(
-		message,
-		'Expected a file or directory path to get its mode, but got \'\' (empty string).'
-	);
-}));
-
-test('invalidate empty Buffer', t => getMode(Buffer.alloc(0)).catch(({message, name}) => {
-	t.equal(name, 'Error');
-	t.equal(
-		message,
-		'Expected a file or directory path to get its mode, but got an empty Buffer.'
-	);
-}));
-
-test('invalidate non-object option', t => getMode(__filename, Buffer.from('Hi')).catch(({message, name}) => {
-	t.equal(name, 'TypeError');
-	t.match(
-		message,
-		'whether `followSymlinks` option is enabled or not, but got <Buffer 48 69>.'
-	);
-}));
-
-test('invalidate non-boolean `followSymlinks` option', t => getMode(__filename, {followSymlinks: new Uint8Array()}).catch(({message, name}) => {
-	t.equal(name, 'TypeError');
-	t.equal(
-		message,
-		'Expected `followSymlinks` option to be a Boolean value, but got Uint8Array [  ].'
-	);
-}));
-
-test('invalidate unsupported option', t => getMode(__filename, {followSymlink: -0}).catch(({message, name}) => {
-	t.equal(name, 'Error');
-	t.equal(
-		message,
-		'`followSymlink` option is not supported but -0 (number) was provided for it. ' +
-      'You mistook `followSymlinks` as it.'
-	);
-}));
-
-test('no arguments', t => getMode().catch(({message, name}) => {
-	t.equal(name, 'TypeError');
-	t.equal(
-		message,
-		'Expected 1 or 2 arguments (path: <string|Buffer|URL>[, option: <Object>]), but got no arguments.'
-	);
-}));
-
-test('toomany arguments', t => getMode('a', 'b', 'c').catch(({message, name}) => {
-	t.equal(name, 'TypeError');
-	t.equal(
-		message,
-		'Expected 1 or 2 arguments (path: <string|Buffer|URL>[, option: <Object>]), but got 3 arguments.'
-	);
-}));
