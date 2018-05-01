@@ -1,6 +1,6 @@
 {
 	"name": "get-mode",
-	"version": "2.0.0-0",
+	"version": "2.0.0-1",
 	"description": "Get a file mode",
 	"repository": "shinnn/get-mode",
 	"author": "Shinnosuke Watanabe (https://github.com/shinnn)",
