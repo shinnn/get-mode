@@ -1,14 +1,12 @@
 'use strict';
 
-const {lstat: lstatCallback, stat: statCallback} = require('fs');
-const {inspect, promisify} = require('util');
+const {lstat, stat} = require('fs/promises');
+const {inspect} = require('util');
 
 const inspectWithKind = require('inspect-with-kind');
 const isPlainObj = require('is-plain-obj');
 
 const EMPTY_PATH_ERROR = 'Expected a file or directory path to get its mode';
-const lstat = promisify(lstatCallback);
-const stat = promisify(statCallback);
 
 const confusingOptionNames = new Set([
 	'followSymlink',
