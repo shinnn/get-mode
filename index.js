@@ -1,6 +1,6 @@
 'use strict';
 
-const {lstat, stat} = require('fs/promises');
+const {lstat, stat} = require('fs').promises;
 const {inspect} = require('util');
 
 const inspectWithKind = require('inspect-with-kind');

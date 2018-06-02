@@ -1,6 +1,6 @@
 'use strict';
 
-const {lstat, stat, symlink, unlink} = require('fs/promises'); // eslint-disable-line node/no-missing-require
+const {lstat, stat, symlink, unlink} = require('fs').promises;
 const {join} = require('path');
 
 const getMode = require('.');
